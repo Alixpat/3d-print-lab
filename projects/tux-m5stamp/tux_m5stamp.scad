@@ -66,10 +66,10 @@ usb_h  = 4.2;
 tol    = 0.3;
 
 /* [Shell + assembly] */
-wall       = 2.0;
-peg_d      = 3.5;
-peg_h      = 4.0;
-peg_offset = 10;
+wall      = 2.0;
+lip_t     = 1.2;   // register-lip thickness (radial)
+lip_h     = 3.0;   // lip height above the split
+lip_clear = 0.3;   // clearance for the lip in its socket
 
 // Derived
 m5_pos_z = -10;
@@ -263,23 +263,21 @@ module belly_insert() {
 // Internal features
 // =====================================================
 
+module inner_body() {   // body part of the cavity (drives the split-region wall)
+    hull() {
+        translate([0, 0, body_bottom_z + 2]) scale([0.84, 0.84, 0.88]) sphere(d = body_bottom_d);
+        translate([0, 0, body_mid_z])        scale([0.84, 0.84, 0.88]) sphere(d = body_mid_d);
+        translate([0, 0, body_top_z])        scale([0.84, 0.84, 0.88]) sphere(d = body_top_d);
+    }
+}
+
 module tux_inner() {
     union() {
+        inner_body();
+        translate([0, 0, head_z]) scale([0.78, 0.80, 0.80]) sphere(d = head_d);
         hull() {
-            translate([0, 0, body_bottom_z + 2])
-                scale([0.84, 0.84, 0.88]) sphere(d = body_bottom_d);
-            translate([0, 0, body_mid_z])
-                scale([0.84, 0.84, 0.88]) sphere(d = body_mid_d);
-            translate([0, 0, body_top_z])
-                scale([0.84, 0.84, 0.88]) sphere(d = body_top_d);
-        }
-        translate([0, 0, head_z])
-            scale([0.78, 0.80, 0.80]) sphere(d = head_d);
-        hull() {
-            translate([0, 0, body_top_z + 0.5])
-                scale([0.78, 0.78, 1]) sphere(d = body_top_d * 0.75);
-            translate([0, 0, head_z - head_d * 0.30])
-                scale([0.78, 0.78, 1]) sphere(d = head_d * 0.68);
+            translate([0, 0, body_top_z + 0.5])        scale([0.78, 0.78, 1]) sphere(d = body_top_d * 0.75);
+            translate([0, 0, head_z - head_d * 0.30])  scale([0.78, 0.78, 1]) sphere(d = head_d * 0.68);
         }
     }
 }
@@ -315,16 +313,27 @@ module case_solid() {
     }
 }
 
-module alignment_pegs() {
-    for (x = [-peg_offset, peg_offset])
-        translate([x, 0, split_z])
-            cylinder(d = peg_d, h = peg_h, $fn = 24);
+// Register lip (replaces the old free pegs): the inner part of the wall, raised
+// above the split, so the two halves self-centre. It IS the wall extended (and
+// reaches below the split to merge solidly). The top half gets the matching relief.
+module register_lip() {
+    intersection() {
+        difference() {
+            minkowski() { inner_body(); sphere(r = lip_t, $fn = 12); }
+            inner_body();
+        }
+        translate([0, 0, split_z - 1.5]) cylinder(d = 400, h = lip_h + 1.5, $fn = 8);
+    }
 }
 
-module alignment_holes() {
-    for (x = [-peg_offset, peg_offset])
-        translate([x, 0, split_z - 0.01])
-            cylinder(d = peg_d + 2*tol, h = peg_h + 0.5, $fn = 24);
+module register_socket() {   // relief in the top half so the lip nests (with clearance)
+    intersection() {
+        difference() {
+            minkowski() { inner_body(); sphere(r = lip_t + lip_clear, $fn = 12); }
+            inner_body();
+        }
+        translate([0, 0, split_z - 0.01]) cylinder(d = 400, h = lip_h + 1.5, $fn = 8);
+    }
 }
 
 module case_half_bottom() {
@@ -333,18 +342,19 @@ module case_half_bottom() {
             case_solid();
             translate([0, 0, split_z + 100]) cube([300, 300, 200], center = true);
         }
-        intersection() {
-            alignment_pegs();
-            tux_main_outline();
-        }
+        register_lip();
     }
 }
 
 module case_half_top() {
-    difference() {
-        case_solid();
-        translate([0, 0, split_z - 100]) cube([300, 300, 200], center = true);
-        alignment_holes();
+    intersection() {
+        difference() {
+            case_solid();
+            translate([0, 0, split_z - 100]) cube([300, 300, 200], center = true);
+            register_socket();
+        }
+        // keep only the main body -> drops tiny flipper slivers that poke above the split
+        union() { tux_body(); tux_head(); tux_neck(); }
     }
 }
 

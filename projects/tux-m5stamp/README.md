@@ -8,8 +8,8 @@ Boîtier décoratif en forme de **pingouin (Tux)** pour une carte **M5Stamp S3**
 
 | Pièce | STL | Couleur | Rôle |
 |---|---|---|---|
-| Coque haute (tête + haut du corps) | `stl/tux_case_top.stl` | noir | se retire au col ; reçoit les pions d'alignement |
-| Coque basse (bas du corps) | `stl/tux_case_bottom.stl` | noir | loge la carte ; ouverture USB |
+| Coque haute (tête + haut du corps) | `stl/tux_case_top.stl` | noir | se retire au col ; logement de la lèvre de centrage |
+| Coque basse (bas du corps) | `stl/tux_case_bottom.stl` | noir | loge la carte ; ouverture USB ; **lèvre de centrage** au joint |
 | Ventre + visage | `stl/tux_belly.stl` | blanc | insert (1,6 mm) qui se loge dans le renfoncement avant |
 | Bec | `stl/tux_beak.stl` | jaune | emboîté par tenon (Ø 4) |
 | Pied gauche / droit | `stl/tux_foot_left.stl`, `stl/tux_foot_right.stl` | jaune | emboîtés par tenon (Ø 4) |
@@ -17,16 +17,10 @@ Boîtier décoratif en forme de **pingouin (Tux)** pour une carte **M5Stamp S3**
 ## Carte et assemblage
 
 - **M5Stamp S3** : 18,4 × 24,4 × 9,6 mm, prise **USB-C** (ouverture 10 × 4,2 mm), jeu `tol = 0,3 mm`.
-- La carte se pose dans la **coque basse** ; la **coque haute** vient par-dessus, **alignée par 2 pions** (Ø 3,5 mm) au niveau du plan de séparation (`split_z = 4`).
+- La carte se pose dans la **coque basse** ; la **coque haute** vient par-dessus, **centrée par une lèvre d'emboîtement** au plan de séparation (`split_z = 4`) : une fine nervure de paroi (`lip_t = 1,2 mm`, `lip_h = 3 mm`) qui dépasse de la coque basse et se loge dans la coque haute. Solidement rattachée (c'est la paroi prolongée).
 - Le **ventre/visage** blanc se clipse dans le renfoncement avant ; **bec** et **pieds** s'emboîtent par tenons (collage possible).
 
-## ⚠️ À corriger avant impression
-
-Les **deux coques** (`tux_case_top`, `tux_case_bottom`) sortent actuellement en **3 corps non reliés** (étanches mais séparés) :
-- sur la coque basse, ce sont les **2 pions d'alignement**, posés **au-dessus de la cavité** → ils ne sont **pas soudés à la coque** et s'imprimeraient « en l'air » ;
-- sur la coque haute, 2 petits éléments détachés sur les côtés.
-
-→ Il faut **rattacher ces éléments à la coque** (les pions sur le rebord/col, pas au-dessus du vide) avant d'imprimer. Les pièces **bec / pieds / ventre** sont, elles, propres (un seul corps étanche).
+> **Note** : les 6 pièces sortent chacune en **un seul corps étanche** (`comps=1`, manifold) — prêtes à imprimer. *(Version précédente : les coques avaient des pions d'alignement détachés ; remplacés par la lèvre de centrage.)*
 
 ## Impression
 
